@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import sun.net.www.http.HttpClient;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +32,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-
-/**
- * Created by rkonda on 10/13/2016.
- */
 @Controller
 public class ViewsController {
 
@@ -49,8 +44,6 @@ public class ViewsController {
         List<String> res = getRepos(username);
 
         List<String> hooks = getHooks(username,"WebHookTest",access_token);
-//        String hookurl = createWebHook(username,"WebHookTest",access_token);
-//        boolean deleted = deleteHook(hooks.get(0),username,"WebHookTest",access_token);
         ModelAndView mav = new ModelAndView();
         mav.setViewName("Welcome");
 
