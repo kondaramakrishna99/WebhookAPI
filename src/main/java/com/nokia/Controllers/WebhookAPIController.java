@@ -1,5 +1,8 @@
 package com.nokia.Controllers;
 
+import com.nokia.DAO.UserTokenDAO;
+import com.nokia.Models.UserToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -10,18 +13,25 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by rkonda on 10/13/2016.
- */
 @RestController
 public class WebhookAPIController {
+
+    @Autowired
+    UserTokenDAO userTokenDAO;
 
     @RequestMapping(value = "/",method = RequestMethod.GET)
     public String welcome()
     {
         System.out.println("Welcome");
         String url ="https://github.com/login/oauth/authorize?client_id=f641556acfa85098fd65";
-        return url;
+
+        System.out.println(userTokenDAO.getUserTokens().toString());
+        if(userTokenDAO.isUserPresent("2"))
+        {
+           // userTokenDAO.insertTokenForUser(new UserToken(2,"token2"));
+            userTokenDAO.deleteUserToken(2+"");
+        }
+        return "Welcome";
     }
 
     @RequestMapping(value = "/payload",method = RequestMethod.POST)

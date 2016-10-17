@@ -36,6 +36,8 @@ import org.apache.http.message.BasicNameValuePair;
 public class ViewsController {
 
     String redirect_url = "https://73059e7a.ngrok.io/payload";
+
+
     @RequestMapping(value = "/Welcome", method = RequestMethod.GET)
     public ModelAndView hello(@RequestParam String code, @RequestParam String state) {
         System.out.println("\nreturn url called "+code+"  "+state+" ");

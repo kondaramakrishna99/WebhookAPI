@@ -26,6 +26,9 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter{
         configurer.enable();
     }
 
+    /*
+        Internal resource view resolver
+     */
     @Bean
     public InternalResourceViewResolver viewResolver() {
         InternalResourceViewResolver resolver = new InternalResourceViewResolver();
@@ -34,13 +37,15 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter{
         return resolver;
     }
 
+    /*
+        Datasource configuration.
+     */
     @Bean
     public DataSource dataSource()
     {
-       // return DataSourceBuilder.create().build();
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost::3306/webhookbuddy");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/webhookbuddy");
         dataSource.setUsername("root");
         dataSource.setPassword("1234");
         return dataSource;

@@ -1,12 +1,17 @@
 package com.nokia.Models;
 
-/**
- * Created by rkonda on 10/17/2016.
+/*
+This model respresents the table authorize_table in database
+Each user has an access token.
  */
 public class UserToken {
 
     private int user_id;
     private String access_token;
+
+    public UserToken() {
+
+    }
 
     public UserToken(int user_id, String access_token) {
         this.user_id = user_id;
