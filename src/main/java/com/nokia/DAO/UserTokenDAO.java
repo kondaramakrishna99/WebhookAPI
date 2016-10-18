@@ -45,6 +45,8 @@ public class UserTokenDAO {
                     UserToken token = new UserToken();
                     token.setUser_id(resultSet.getInt("user_id"));
                     token.setAccess_token(resultSet.getString("access_token"));
+                    token.setProject(resultSet.getString("project"));
+                    token.setProject(resultSet.getString("username"));
                     return token;
                 }
             });
@@ -53,24 +55,18 @@ public class UserTokenDAO {
         {
             e.printStackTrace();
         }
-
-//        for(UserToken token:results)
-//        {
-//            System.out.println(token.getUser_id()+"  "+token.getAccess_token());
-//        }
-
         return results;
     }
 
 
     //get Token for a user
-    public String getToken(String user_id)
+    public String getToken(String user_id,String project)
     {
         List<UserToken> tokens = getUserTokens();
         String resToken="";
         for(UserToken t:tokens)
         {
-            if(t.getUser_id()==Integer.parseInt(user_id))
+            if(t.getUser_id()==Integer.parseInt(user_id) && t.getProject().equals(project))
             {
                 resToken=t.getAccess_token();
                 break;
@@ -85,27 +81,36 @@ public class UserTokenDAO {
     //insert token into table with specific user_id
     public int insertTokenForUser(UserToken usertoken)
     {
-        //String sql = "insert into authorize_table(user_id,access_token) values("+usertoken.getUser_id()+","+usertoken.getAccess_token()+")";
-        String sql = "insert into authorize_table(user_id,access_token) values(?,?)";
-        Object[] params={usertoken.getUser_id(),usertoken.getAccess_token()};
+        String sql = "insert into authorize_table(user_id,access_token,username,project) values(?,?,?,?)";
+        Object[] params={usertoken.getUser_id(),usertoken.getAccess_token(),usertoken.getUsername(),usertoken.getProject()};
         int rowsaffected= jdbcTemplate.update(sql,params);
         return rowsaffected;
     }
 
-    //to check whether user already present or not before inserting
-    public boolean isUserPresent(String user_id)
+    //update token for a given user
+    public int updateTokenForUser(UserToken usertoken)
     {
-        if(getToken(user_id).equals("NULL"))
+        String sql = "update authorize_table set access_token=? where user_id=? && project=?";
+        Object[] params={usertoken.getAccess_token(),usertoken.getUser_id(),usertoken.getProject()};
+        int rowsaffected = jdbcTemplate.update(sql,params);
+        return rowsaffected;
+    }
+
+    //to check whether user already present or not before inserting
+    public boolean isUserPresent(String user_id,String project)
+    {
+        if(getToken(user_id,project).equals("NULL"))
             return false;
         else
             return true;
     }
 
     //To delete specific user_id from list
-    public int deleteUserToken(String user_id)
+    public int deleteUserToken(String user_id,String project)
     {
-        String sql = "delete from authorize_table where user_id="+user_id;
-        int rows = jdbcTemplate.update(sql);
+        String sql = "delete from authorize_table where user_id=? && project=?";
+        Object[] params = {user_id,project};
+        int rows = jdbcTemplate.update(sql,params);
         return rows;
     }
 

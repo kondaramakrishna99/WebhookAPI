@@ -26,10 +26,10 @@ public class WebhookAPIController {
         String url ="https://github.com/login/oauth/authorize?client_id=f641556acfa85098fd65";
 
         System.out.println(userTokenDAO.getUserTokens().toString());
-        if(userTokenDAO.isUserPresent("2"))
+        if(userTokenDAO.isUserPresent("2","git"))
         {
            // userTokenDAO.insertTokenForUser(new UserToken(2,"token2"));
-            userTokenDAO.deleteUserToken(2+"");
+            userTokenDAO.deleteUserToken(2+"","git");
         }
         return "Welcome";
     }

@@ -8,6 +8,25 @@ public class UserToken {
 
     private int user_id;
     private String access_token;
+    private String username;
+    private String project;
+
+    public String getUsername() {
+        return username;
+    }
+
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
+    }
 
     public UserToken() {
 
@@ -34,13 +53,15 @@ public class UserToken {
         this.access_token = access_token;
     }
 
-
     @Override
     public String toString() {
         return "UserToken{" +
                 "user_id=" + user_id +
                 ", access_token='" + access_token + '\'' +
+                ", username='" + username + '\'' +
+                ", project='" + project + '\'' +
                 '}';
     }
+
 
 }
