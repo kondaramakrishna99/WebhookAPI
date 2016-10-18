@@ -86,7 +86,7 @@ public class GitApiController {
                 for(int i=0;i<repos.length();i++)
                 {
                     JSONObject rep = repos.getJSONObject(i);
-                    System.out.println(" "+rep.get("id").toString());
+                    System.out.println(""+rep.get("id").toString());
                     result.add(rep.get("id").toString()+"");
                 }
             }
