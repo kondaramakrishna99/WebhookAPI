@@ -21,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /*
     Controller for GitApi. /welcome will be called as part of callback url
@@ -30,15 +31,21 @@ import java.util.List;
 @RequestMapping(value = "/git")
 public class GitViewController {
 
+    Logger log= Logger.getLogger(GitViewController.class.getName());
     String redirect_url = "https://73059e7a.ngrok.io/payload";
 
     @Autowired
     UserTokenDAO userTokenDAO;
 
-    //Postback url from git
+    /*
+        Postback url from git
+        params: code and user_id
+        return view welcome page
+     */
     @RequestMapping(value = "/welcome", method = RequestMethod.GET)
-    public ModelAndView hello(@RequestParam String code,@RequestParam String user_id) {
-        System.out.println("\n return url called "+code);
+    public ModelAndView hello(@RequestParam String code,@RequestParam String state) {
+        String user_id=state;
+        log.info("Callback from Git"+user_id+"  "+code);
         String access_token = getAccesstoken(code);
         String username = getUsername(access_token);
 
@@ -50,10 +57,12 @@ public class GitViewController {
 
         if(!userTokenDAO.isUserPresent(user_id,"git"))
         {
+            log.info("userpresent: "+user_id);
             userTokenDAO.insertTokenForUser(usertoken);
         }
         else
         {
+            log.info("no userpresent: "+user_id);
             userTokenDAO.updateTokenForUser(usertoken);
         }
 

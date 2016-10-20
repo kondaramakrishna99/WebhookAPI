@@ -285,8 +285,6 @@ public class ViewsController {
             CloseableHttpResponse response = httpClient.execute(httpDelete);
             System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
 
-
-
             if(response.getStatusLine().getStatusCode()==204)
             {
                 return true;

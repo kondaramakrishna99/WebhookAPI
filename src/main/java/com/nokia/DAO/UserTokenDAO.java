@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *This class is mainly for all data access operations for authorize_table
@@ -19,7 +20,7 @@ import java.util.List;
 @Repository
 public class UserTokenDAO {
 
-
+    Logger log = Logger.getLogger(UserTokenDAO.class.getName());
     JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -46,7 +47,7 @@ public class UserTokenDAO {
                     token.setUser_id(resultSet.getInt("user_id"));
                     token.setAccess_token(resultSet.getString("access_token"));
                     token.setProject(resultSet.getString("project"));
-                    token.setProject(resultSet.getString("username"));
+                    token.setUsername(resultSet.getString("username"));
                     return token;
                 }
             });
@@ -63,18 +64,21 @@ public class UserTokenDAO {
     public String getToken(String user_id,String project)
     {
         List<UserToken> tokens = getUserTokens();
+        log.info("tokens list: "+tokens.toString());
         String resToken="";
         for(UserToken t:tokens)
         {
+            log.info("token "+t.toString()+"  "+user_id+"  "+project);
             if(t.getUser_id()==Integer.parseInt(user_id) && t.getProject().equals(project))
             {
                 resToken=t.getAccess_token();
+                log.info("token found: "+resToken+" "+t.getUser_id()+"  "+t.getProject());
                 break;
             }
         }
         if(resToken.equals(""))
             return "NULL";
-        System.out.println("restoken: "+resToken);
+        log.info("res token: "+resToken);
         return resToken;
     }
 
@@ -100,7 +104,10 @@ public class UserTokenDAO {
     public boolean isUserPresent(String user_id,String project)
     {
         if(getToken(user_id,project).equals("NULL"))
+        {
+            log.info("isuserpresent: token present for "+user_id);
             return false;
+        }
         else
             return true;
     }
@@ -112,6 +119,25 @@ public class UserTokenDAO {
         Object[] params = {user_id,project};
         int rows = jdbcTemplate.update(sql,params);
         return rows;
+    }
+
+    //get Username of user from their profile like git username
+    public String getUsername(String user_id,String project)
+    {
+        List<UserToken> tokens = getUserTokens();
+        String resUsername="";
+        for(UserToken t:tokens)
+        {
+            if(t.getUser_id()==Integer.parseInt(user_id) && t.getProject().equals(project))
+            {
+                resUsername=t.getUsername();
+                break;
+            }
+        }
+        if(resUsername.equals(""))
+            return "NULL ";
+        System.out.println("restoken: "+resUsername);
+        return resUsername;
     }
 
 }
