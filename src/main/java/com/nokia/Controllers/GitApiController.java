@@ -34,7 +34,7 @@ public class GitApiController {
     Logger log= Logger.getLogger(GitViewController.class.getName());
 
     //where payload should be called from Git
-    String redirect_url = "http://84c82e06.ngrok.io/payload";
+    String redirect_url = "https://855fe5ec.ngrok.io/payload";
 
     @Autowired
     UserTokenDAO userTokenDAO;
@@ -43,8 +43,8 @@ public class GitApiController {
     UserHooksDAO userHooksDAO;
 
     //To get list of repositories
-    @RequestMapping(value = "/repos/{userid}")
-    public List<String> getRepos(@PathVariable("userid")String userid)
+    @RequestMapping(value = "/repos/{userid}",method = RequestMethod.GET)
+    public ResponseEntity<String> getRepos(@PathVariable("userid")String userid)
     {
         System.out.println("\n-----------get Repos : "+userid+"---------------");
 
@@ -65,7 +65,7 @@ public class GitApiController {
             String json = EntityUtils.toString(response.getEntity(), "UTF-8");
             System.out.println("json:: "+json);
             JSONArray repos = new JSONArray(json);
-
+            String res="";
             if(!json.equals("")&& json!=null)
             {
                 for(int i=0;i<repos.length();i++)
@@ -73,14 +73,18 @@ public class GitApiController {
                     JSONObject rep = repos.getJSONObject(i);
                     System.out.println(""+rep.getString("name"));
                     result.add(rep.getString("name"));
+                    res+=rep.getString("name")+" ";
                 }
             }
+
+            return new ResponseEntity<String>(res,HttpStatus.OK);
+
         }
         catch(Exception e)
         {
             System.out.println(e);
         }
-        return result;
+        return new ResponseEntity<String>("Internal error",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     //to get hooks for specific repo
@@ -147,7 +151,7 @@ public class GitApiController {
                     System.out.println("hookurl : "+hookurl);
                     hook.setHook_id(hook_id);
                     int rows= userHooksDAO.insertHookForUser(hook);
-
+                    log.info("New hook: "+hook.toString());
                     return hookurl;
                 }
             }
@@ -240,6 +244,15 @@ public class GitApiController {
             System.out.println(e);
         }
         return result;
+    }
+
+    @RequestMapping(value = "/isUserAuthorized/{user_id}")
+    public ResponseEntity<Boolean> isUserAlreadyAuthorized(@PathVariable("user_id") String user_id)
+    {
+        if(userTokenDAO.isUserPresent(user_id,"git"))
+            return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+        else
+            return new ResponseEntity<Boolean>(false,HttpStatus.OK);
     }
 
 

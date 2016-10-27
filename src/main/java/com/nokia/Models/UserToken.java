@@ -6,7 +6,7 @@ Each user has an access token.
  */
 public class UserToken {
 
-    private int user_id;
+    private String user_id;
     private String access_token;
     private String username;
     private String project;
@@ -32,16 +32,16 @@ public class UserToken {
 
     }
 
-    public UserToken(int user_id, String access_token) {
+    public UserToken(String user_id, String access_token) {
         this.user_id = user_id;
         this.access_token = access_token;
     }
 
-    public int getUser_id() {
+    public String getUser_id() {
         return user_id;
     }
 
-    public void setUser_id(int user_id) {
+    public void setUser_id(String user_id) {
         this.user_id = user_id;
     }
 

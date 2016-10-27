@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 public class GitViewController {
 
     Logger log= Logger.getLogger(GitViewController.class.getName());
-    String redirect_url = "https://73059e7a.ngrok.io/payload";
+    String redirect_url = "https://855fe5ec.ngrok.io/payload";
 
     @Autowired
     UserTokenDAO userTokenDAO;
@@ -43,14 +43,14 @@ public class GitViewController {
         return view welcome page
      */
     @RequestMapping(value = "/welcome", method = RequestMethod.GET)
-    public ModelAndView hello(@RequestParam String code,@RequestParam String state) {
+    public ModelAndView welcome(@RequestParam String code,@RequestParam String state) {
         String user_id=state;
         log.info("Callback from Git"+user_id+"  "+code);
         String access_token = getAccesstoken(code);
         String username = getUsername(access_token);
 
         UserToken usertoken = new UserToken();
-        usertoken.setUser_id(Integer.parseInt(user_id));
+        usertoken.setUser_id(user_id);
         usertoken.setAccess_token(access_token);
         usertoken.setUsername(username);
         usertoken.setProject("git");

@@ -44,7 +44,7 @@ public class UserTokenDAO {
                 @Override
                 public UserToken mapRow(ResultSet resultSet, int i) throws SQLException {
                     UserToken token = new UserToken();
-                    token.setUser_id(resultSet.getInt("user_id"));
+                    token.setUser_id(resultSet.getString("user_id"));
                     token.setAccess_token(resultSet.getString("access_token"));
                     token.setProject(resultSet.getString("project"));
                     token.setUsername(resultSet.getString("username"));
@@ -69,7 +69,7 @@ public class UserTokenDAO {
         for(UserToken t:tokens)
         {
             log.info("token "+t.toString()+"  "+user_id+"  "+project);
-            if(t.getUser_id()==Integer.parseInt(user_id) && t.getProject().equals(project))
+            if(t.getUser_id().equals(user_id) && t.getProject().equals(project))
             {
                 resToken=t.getAccess_token();
                 log.info("token found: "+resToken+" "+t.getUser_id()+"  "+t.getProject());
@@ -128,7 +128,7 @@ public class UserTokenDAO {
         String resUsername="";
         for(UserToken t:tokens)
         {
-            if(t.getUser_id()==Integer.parseInt(user_id) && t.getProject().equals(project))
+            if(t.getUser_id().equals(user_id) && t.getProject().equals(project))
             {
                 resUsername=t.getUsername();
                 break;

@@ -35,8 +35,8 @@ public class UserHooksDAO {
             @Override
             public UserHooks mapRow(ResultSet resultSet, int i) throws SQLException {
                 UserHooks hook =new UserHooks();
-                hook.setUser_id(resultSet.getInt("user_id"));
-                hook.setChat_thread_id(resultSet.getInt("chat_thread_id"));
+                hook.setUser_id(resultSet.getString("user_id"));
+                hook.setChat_thread_id(resultSet.getString("chat_thread_id"));
                 hook.setProject(resultSet.getString("project"));
                 hook.setReponame(resultSet.getString("reponame"));
                 hook.setHook_id(resultSet.getString("hook_id"));
@@ -56,8 +56,8 @@ public class UserHooksDAO {
             @Override
             public UserHooks mapRow(ResultSet resultSet, int i) throws SQLException {
                 UserHooks hook =new UserHooks();
-                hook.setUser_id(resultSet.getInt("user_id"));
-                hook.setChat_thread_id(resultSet.getInt("chat_thread_id"));
+                hook.setUser_id(resultSet.getString("user_id"));
+                hook.setChat_thread_id(resultSet.getString("chat_thread_id"));
                 hook.setProject(resultSet.getString("project"));
                 hook.setReponame(resultSet.getString("reponame"));
                 hook.setHook_id(resultSet.getString("hook_id"));
@@ -71,8 +71,10 @@ public class UserHooksDAO {
     public int insertHookForUser(UserHooks hook)
     {
         String sql="insert into hooks_table(user_id,chat_thread_id,reponame,project,hook_id) values(?,?,?,?,?)";
+        log.info("sql: "+sql);
         Object[] params ={hook.getUser_id(),hook.getChat_thread_id(),hook.getReponame(),hook.getProject(),hook.getHook_id()};
         int rowsaffected = jdbcTemplate.update(sql,params);
+        log.info("rows:"+rowsaffected );
         return rowsaffected;
     }
 

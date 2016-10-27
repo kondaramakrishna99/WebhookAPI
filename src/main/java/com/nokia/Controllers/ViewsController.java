@@ -35,10 +35,10 @@ import org.apache.http.message.BasicNameValuePair;
 @Controller
 public class ViewsController {
 
-    String redirect_url = "https://73059e7a.ngrok.io/payload";
+    String redirect_url = "https://855fe5ec.ngrok.io/payload";
 
 
-    @RequestMapping(value = "/Welcome", method = RequestMethod.GET)
+    @RequestMapping(value = "/welcome", method = RequestMethod.GET)
     public ModelAndView hello(@RequestParam String code, @RequestParam String state) {
         System.out.println("\nreturn url called "+code+"  "+state+" ");
         String access_token = getAccesstoken(code);
@@ -46,6 +46,7 @@ public class ViewsController {
         List<String> res = getRepos(username);
 
         List<String> hooks = getHooks(username,"WebHookTest",access_token);
+        String hookurl =createWebHook(username,"WebHookTest",access_token);
         ModelAndView mav = new ModelAndView();
         mav.setViewName("Welcome");
 
