@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 public class GitViewController {
 
     Logger log= Logger.getLogger(GitViewController.class.getName());
-    String redirect_url = "https://855fe5ec.ngrok.io/payload";
+    String redirect_url = "https://78d99613.ngrok.io/payload";
 
     @Autowired
     UserTokenDAO userTokenDAO;
@@ -82,8 +82,11 @@ public class GitViewController {
         post.addHeader("Accept", "application/json");
 
         List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
-        urlParameters.add(new BasicNameValuePair("client_id", "f641556acfa85098fd65"));
-        urlParameters.add(new BasicNameValuePair("client_secret", "0e6d1d9369cb227ce083762b7afd7bdc9b204858"));
+//        urlParameters.add(new BasicNameValuePair("client_id", "f641556acfa85098fd65"));
+//        urlParameters.add(new BasicNameValuePair("client_secret", "5fb5807200d471937abf249eb3f1f78bfb08b7e9"));
+        urlParameters.add(new BasicNameValuePair("client_id", "4f3cb4d16e55d1cd0f13"));
+        urlParameters.add(new BasicNameValuePair("client_secret", "0354b3be9b792770fb1c9c4332d5ad7b1ed85277"));
+
         urlParameters.add(new BasicNameValuePair("code", code));
         //System.out.println("url parameters:: "+urlParameters.toString());
         try

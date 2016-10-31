@@ -34,7 +34,7 @@ public class GitApiController {
     Logger log= Logger.getLogger(GitViewController.class.getName());
 
     //where payload should be called from Git
-    String redirect_url = "https://855fe5ec.ngrok.io/payload";
+    String redirect_url = "https://78d99613.ngrok.io/payload";
 
     @Autowired
     UserTokenDAO userTokenDAO;
@@ -105,19 +105,28 @@ public class GitApiController {
         String token = userTokenDAO.getToken(hook.getUser_id()+"","git");
         String repo = hook.getReponame();
 
-        if(userHooksDAO.isHookPresentForUser(hook))
+        if(userHooksDAO.isHookPresentForUserInChatThread(hook))
         {
-            return "Repo/Hook already exist";
+            return "Repo/Hook already exist for this chat thread";
+        }
+        else if(userHooksDAO.isHookPresentForUser(hook))
+        {
+            userHooksDAO.insertHookForUser(hook);
+            return "A hook has been created in this chat thread.";
         }
         else
         {
             System.out.println("\n--------------create new hook---------------");
 
-            String url = "https://api.github.com/repos/"+username+"/"+repo+"/hooks?access_token="+token;
+            String url = "http://api.github.com/repos/"+username+"/"+repo+"/hooks?access_token="+token;
+//            client_id=xxxx&client_secret=yyyy'
+//            String url = "https://api.github.com/repos/"+username+"/"+repo+"/hooks?client_id=f641556acfa85098fd65&client_secret=5fb5807200d471937abf249eb3f1f78bfb08b7e9";
+
             CloseableHttpClient client = HttpClients.createDefault();
             HttpPost post = new HttpPost(url);
 
             post.addHeader("Accept", "application/json");
+//            post.addHeader("content_type","json");
 
             JSONObject postjson = new JSONObject();
             postjson.put("name","web");
@@ -152,14 +161,14 @@ public class GitApiController {
                     hook.setHook_id(hook_id);
                     int rows= userHooksDAO.insertHookForUser(hook);
                     log.info("New hook: "+hook.toString());
-                    return hookurl;
+                    return hookurl+"\n Hook was created";
                 }
             }
             catch(Exception e)
             {
                 System.out.println(e);
             }
-            return "";
+            return "Error creating Hook";
         }
     }
 

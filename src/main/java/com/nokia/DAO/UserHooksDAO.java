@@ -127,6 +127,22 @@ public class UserHooksDAO {
         return false;
     }
 
+    public boolean isHookPresentForUserInChatThread(UserHooks hook)
+    {
+        log.info("isHookPresentForUserInChatThread");
+        List<UserHooks> listHooks =getHooksForUser(hook.getUser_id()+"");
+        log.info("list hooks: " +listHooks.toString());
+        for(UserHooks h:listHooks)
+        {
+            if(h.getReponame().equals(hook.getReponame()) && h.getProject().equals(hook.getProject()) && h.getChat_thread_id().equals(hook.getChat_thread_id()))
+            {
+                log.info("hook present: "+hook.toString());
+                return true;
+            }
+        }
+        return false;
+    }
+
     //delete webhook for user and project
     public int deleteHook(UserHooks hook)
     {
