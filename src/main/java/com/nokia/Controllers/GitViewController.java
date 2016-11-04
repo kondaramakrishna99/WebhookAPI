@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 public class GitViewController {
 
     Logger log= Logger.getLogger(GitViewController.class.getName());
-    String redirect_url = "https://78d99613.ngrok.io/payload";
+    String redirect_url = "https://71587faf.ngrok.io/payload";
 
     @Autowired
     UserTokenDAO userTokenDAO;
@@ -46,7 +46,18 @@ public class GitViewController {
     public ModelAndView welcome(@RequestParam String code,@RequestParam String state) {
         String user_id=state;
         log.info("Callback from Git"+user_id+"  "+code);
-        String access_token = getAccesstoken(code);
+        String access_token_scope = getAccesstoken(code);
+        String[] token_scope = access_token_scope.split(",");
+        String access_token = token_scope[0];
+
+        String scope = userTokenDAO.getScope(user_id,"git");
+        if(!scope.contains("admin"))
+        {
+            scope = scope+" "+token_scope[1];
+        }
+        else
+            scope=token_scope[1];
+
         String username = getUsername(access_token);
 
         UserToken usertoken = new UserToken();
@@ -54,6 +65,7 @@ public class GitViewController {
         usertoken.setAccess_token(access_token);
         usertoken.setUsername(username);
         usertoken.setProject("git");
+        usertoken.setScope(scope);
 
         if(!userTokenDAO.isUserPresent(user_id,"git"))
         {
@@ -105,8 +117,9 @@ public class GitViewController {
             if(!json.equals("")&& json!=null)
             {
                 String token = resp_json.getString("access_token");
-                System.out.println("access: "+token);
-                return token;
+                String scope=resp_json.getString("scope");
+                System.out.println("access: "+token+","+scope);
+                return token+","+scope;
             }
         }
         catch(Exception e)

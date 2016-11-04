@@ -34,7 +34,7 @@ public class GitApiController {
     Logger log= Logger.getLogger(GitViewController.class.getName());
 
     //where payload should be called from Git
-    String redirect_url = "https://78d99613.ngrok.io/payload";
+    String redirect_url = "https://71587faf.ngrok.io/payload";
 
     @Autowired
     UserTokenDAO userTokenDAO;
@@ -118,7 +118,8 @@ public class GitApiController {
         {
             System.out.println("\n--------------create new hook---------------");
 
-            String url = "http://api.github.com/repos/"+username+"/"+repo+"/hooks?access_token="+token;
+            String url = "https://api.github.com/repos/"+username+"/"+repo+"/hooks?access_token="+token;
+            log.info(url);
 //            client_id=xxxx&client_secret=yyyy'
 //            String url = "https://api.github.com/repos/"+username+"/"+repo+"/hooks?client_id=f641556acfa85098fd65&client_secret=5fb5807200d471937abf249eb3f1f78bfb08b7e9";
 
@@ -126,7 +127,7 @@ public class GitApiController {
             HttpPost post = new HttpPost(url);
 
             post.addHeader("Accept", "application/json");
-//            post.addHeader("content_type","json");
+           // post.addHeader("content_type","application/json");
 
             JSONObject postjson = new JSONObject();
             postjson.put("name","web");
@@ -173,9 +174,11 @@ public class GitApiController {
     }
 
     //delete specific hook for user
-    @RequestMapping(value = "/deletehook",method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteHook(@RequestBody UserHooks hook)
+    @RequestMapping(value = "/deletehookforall",method = RequestMethod.DELETE)
+    public ResponseEntity<String> deleteHookForAll(@RequestBody UserHooks hook)
     {
+        log.info("----deletehookforall----" + hook.toString());
+
         String username = userTokenDAO.getUsername(hook.getUser_id()+"","git");
         String token = userTokenDAO.getToken(hook.getUser_id()+"","git");
         String repo = hook.getReponame();
@@ -187,6 +190,7 @@ public class GitApiController {
         }
 
         System.out.println("\n-------delete hook----------");
+
         String url = "https://api.github.com/repos/"+username+"/"+repo+"/"+"hooks/"+id+"?access_token="+token;
 
         boolean result=false;
@@ -201,7 +205,7 @@ public class GitApiController {
 
             if(response.getStatusLine().getStatusCode()==204)
             {
-                userHooksDAO.deleteHook(hook);
+                userHooksDAO.deleteAllHooksForRepo(hook);
                 return new ResponseEntity<String>(id+"",HttpStatus.OK);
             }
 
@@ -212,6 +216,30 @@ public class GitApiController {
         }
         return new ResponseEntity<String>("id",HttpStatus.BAD_REQUEST);
     }
+
+    @RequestMapping(value = "/deletehookforchat",method = RequestMethod.DELETE)
+    public ResponseEntity<String> deleteHookForChat(@RequestBody UserHooks hook)
+    {
+        log.info("----deletehookforchat----"+hook.toString());
+
+        if(userHooksDAO.isHookPresentForUserInChatThread(hook))
+        {
+            if(userHooksDAO.getCountForRepoHooks(hook)>1)
+            {
+                int rows=userHooksDAO.deleteHookForChat(hook);
+                if(rows>=0)
+                    return new ResponseEntity<String>("success",HttpStatus.OK);
+
+                return new ResponseEntity<String>("failed",HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            else if(userHooksDAO.getCountForRepoHooks(hook)==1)
+            {
+                return deleteHookForAll(hook);
+            }
+        }
+        return new ResponseEntity<String>("failed. Hook not present for this user",HttpStatus.NOT_FOUND);
+    }
+
 
     //helper function
     public List<String> getHookList(String userid,String repo)
@@ -263,6 +291,16 @@ public class GitApiController {
         else
             return new ResponseEntity<Boolean>(false,HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/scope/{user_id}",method = RequestMethod.GET)
+    public ResponseEntity<String> getScope(@PathVariable("user_id") String user_id)
+    {
+
+        String scope = userTokenDAO.getScope(user_id,"git");
+        log.info("get Scope: "+scope);
+        return new ResponseEntity<String>(scope,HttpStatus.OK);
+    }
+
 
 
 }

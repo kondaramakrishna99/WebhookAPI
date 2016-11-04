@@ -48,6 +48,7 @@ public class UserTokenDAO {
                     token.setAccess_token(resultSet.getString("access_token"));
                     token.setProject(resultSet.getString("project"));
                     token.setUsername(resultSet.getString("username"));
+                    token.setScope(resultSet.getString("scope"));
                     return token;
                 }
             });
@@ -85,8 +86,8 @@ public class UserTokenDAO {
     //insert token into table with specific user_id
     public int insertTokenForUser(UserToken usertoken)
     {
-        String sql = "insert into authorize_table(user_id,access_token,username,project) values(?,?,?,?)";
-        Object[] params={usertoken.getUser_id(),usertoken.getAccess_token(),usertoken.getUsername(),usertoken.getProject()};
+        String sql = "insert into authorize_table(user_id,access_token,username,project,scope) values(?,?,?,?,?)";
+        Object[] params={usertoken.getUser_id(),usertoken.getAccess_token(),usertoken.getUsername(),usertoken.getProject(),usertoken.getScope()};
         int rowsaffected= jdbcTemplate.update(sql,params);
         return rowsaffected;
     }
@@ -94,8 +95,17 @@ public class UserTokenDAO {
     //update token for a given user
     public int updateTokenForUser(UserToken usertoken)
     {
-        String sql = "update authorize_table set access_token=? where user_id=? && project=?";
-        Object[] params={usertoken.getAccess_token(),usertoken.getUser_id(),usertoken.getProject()};
+        String sql = "update authorize_table set access_token=?, scope=? where user_id=? && project=?";
+        Object[] params={usertoken.getAccess_token(),usertoken.getScope(),usertoken.getUser_id(),usertoken.getProject()};
+        int rowsaffected = jdbcTemplate.update(sql,params);
+        return rowsaffected;
+    }
+
+    //update token for a given user
+    public int updateScopeForUser(UserToken usertoken)
+    {
+        String sql = "update authorize_table set scope=? where user_id=? && project=?";
+        Object[] params={usertoken.getScope(),usertoken.getUser_id(),usertoken.getProject()};
         int rowsaffected = jdbcTemplate.update(sql,params);
         return rowsaffected;
     }
@@ -130,7 +140,7 @@ public class UserTokenDAO {
         {
             if(t.getUser_id().equals(user_id) && t.getProject().equals(project))
             {
-                resUsername=t.getUsername();
+                resUsername=t.getUsername()+"";
                 break;
             }
         }
@@ -139,5 +149,27 @@ public class UserTokenDAO {
         System.out.println("restoken: "+resUsername);
         return resUsername;
     }
+
+    //get Username of user from their profile like git username
+    public String getScope(String user_id,String project)
+    {
+        List<UserToken> tokens = getUserTokens();
+        log.info(tokens.toString());
+        String resScope="";
+        for(UserToken t:tokens)
+        {
+            if(t.getUser_id().equals(user_id) && t.getProject().equals(project))
+            {
+                resScope=t.getScope();
+                log.info("res scope: "+t.toString());
+                break;
+            }
+        }
+        if(resScope==null || resScope.equals(""))
+            return "";
+        System.out.println("rescope: "+resScope);
+        return resScope;
+    }
+
 
 }

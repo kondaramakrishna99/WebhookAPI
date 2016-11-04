@@ -1,5 +1,6 @@
 package com.nokia.Controllers;
 
+import com.nokia.DAO.UserHooksDAO;
 import com.nokia.DAO.UserTokenDAO;
 import com.nokia.Models.UserToken;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -8,6 +9,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -26,8 +28,12 @@ public class WebhookAPIController {
 
     @Autowired
     UserTokenDAO userTokenDAO;
-    Logger log= Logger.getLogger(GitViewController.class.getName());
 
+    @Autowired
+    UserHooksDAO userHooksDAO;
+
+    Logger log= Logger.getLogger(GitViewController.class.getName());
+    String pythonAPIurl = "http://127.0.0.1:5000/postOnApp";
     @RequestMapping(value = "/",method = RequestMethod.GET)
     public String welcome()
     {
@@ -56,15 +62,72 @@ public class WebhookAPIController {
             System.out.println(header.getKey()+"    "+header.getValue());
         }
 
-        String url = "http://127.0.0.1:5000/postOnApp";
+        String result="";
+
+        JSONObject responseJson = new JSONObject(req.getBody());
+        JSONObject repository = responseJson.getJSONObject("repository");
+        String reponame= repository.getString("name");
+        result+="repository: "+reponame+"\n";
+        JSONArray committers = responseJson.getJSONArray("commits");
+        String commitInfo="";
+        for(int i=0;i<committers.length();i++)
+        {
+            JSONObject committer = committers.getJSONObject(i);
+            String committername = "committer : "+committer.getJSONObject("committer").getString("name")+"\n";
+            result+=committername+"\n";
+            JSONArray addedArray = committer.getJSONArray("added");
+            if(addedArray.length()!=0)
+            {
+                String added="Added: \n";
+                for(int j=0;j<addedArray.length();j++)
+                {
+                    added=added+""+(j+1)+". "+addedArray.getString(j)+"\n";
+                }
+                result+=added+"\n";
+            }
+
+            JSONArray removedArray = committer.getJSONArray("removed");
+            if(removedArray.length()!=0)
+            {
+                String removed="Removed: \n";
+                for(int j=0;j<removedArray.length();j++)
+                {
+                    removed=removed+""+(j+1)+". "+removedArray.getString(j)+"\n";
+                }
+                result+=removed+"\n";
+            }
+
+            JSONArray modifiedArray = committer.getJSONArray("modified");
+            if(modifiedArray.length()!=0)
+            {
+                String modified="Modified: \n";
+                for(int j=0;j<modifiedArray.length();j++)
+                {
+                    modified=modified+""+(j+1)+". "+modifiedArray.getString(j)+"\n";
+                }
+                result+=modified+"\n";
+            }
+        }
+
+        log.info("message: "+result);
+
+        //get chat threadids
+        List<String> chatthreadList= userHooksDAO.getChatThreads(reponame,"git");
+        String chatthreads=String.join(",",chatthreadList);
+        log.info(reponame+"  "+chatthreads);
+
+        log.info("post to python API: "+result);
+        String url = pythonAPIurl;
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost post = new HttpPost(url);
 //        post.addHeader("Accept", "application/json");
         post.addHeader("Content-Type","application/json");
         JSONObject postjson = new JSONObject();
-        postjson.put("message",req.getBody());
-        postjson.put("chat_thread_id","336da76e-9292016-10-11-15-14-56-468--1195012184");
+        postjson.put("message",result);
+        postjson.put("chat_thread_id",chatthreads);
+
         log.info("json: "+postjson.toString());
+
         try
         {
             StringEntity postjsonEntity = new StringEntity(postjson.toString());

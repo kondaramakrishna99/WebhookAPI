@@ -49,7 +49,6 @@ public class UserHooksDAO {
     //List all hooks of specific user
     public List<UserHooks> getHooksForChat(String chat_thread_id)
     {
-
         String sql = "select * from hooks_table where chat_thread_id=?";
         Object[] params={chat_thread_id};
         List<UserHooks> hooksList = jdbcTemplate.query(sql, params, new RowMapper<UserHooks>() {
@@ -70,6 +69,8 @@ public class UserHooksDAO {
     //Insert a hook into webhook for specific user
     public int insertHookForUser(UserHooks hook)
     {
+        String hookid = (!hook.getHook_id().equals("-1"))?hook.getHook_id():getHookId(hook);
+        hook.setHook_id(hookid);
         String sql="insert into hooks_table(user_id,chat_thread_id,reponame,project,hook_id) values(?,?,?,?,?)";
         log.info("sql: "+sql);
         Object[] params ={hook.getUser_id(),hook.getChat_thread_id(),hook.getReponame(),hook.getProject(),hook.getHook_id()};
@@ -85,7 +86,7 @@ public class UserHooksDAO {
      */
     public String getHookId(UserHooks hook)
     {
-        log.info("------Get Hook Id-------");
+        log.info("------Get Hook Id-------"+hook.toString());
         List<UserHooks> listHooks =getHooksForUser(hook.getUser_id()+"");
         for(UserHooks h:listHooks)
         {
@@ -144,11 +145,59 @@ public class UserHooksDAO {
     }
 
     //delete webhook for user and project
-    public int deleteHook(UserHooks hook)
+    public int deleteHookForChat(UserHooks hook)
     {
         String sql ="delete from hooks_table where user_id=? AND chat_thread_id=? AND reponame=? AND project=?";
         Object[] params= {hook.getUser_id(),hook.getChat_thread_id(),hook.getReponame(),hook.getProject()};
         int rowsaffected = jdbcTemplate.update(sql,params);
         return rowsaffected;
+    }
+
+    //delete webhook for user and project
+    public int deleteAllHooksForRepo(UserHooks hook)
+    {
+        String sql ="delete from hooks_table where user_id=? AND reponame=? AND project=?";
+        Object[] params= {hook.getUser_id(),hook.getReponame(),hook.getProject()};
+        int rowsaffected = jdbcTemplate.update(sql,params);
+        return rowsaffected;
+    }
+
+    /*
+        Count hooks for single repo. Each chat thread hook is counted for repo
+     */
+    public int getCountForRepoHooks(UserHooks hook)
+    {
+        String sql = "select chat_thread_id from hooks_table where user_id=? AND reponame=? AND project=?";
+        log.info("getcountforrepo: "+hook.toString());
+        Object[] params={hook.getUser_id(),hook.getReponame(),hook.getProject()};
+        List<String> chatthreadlist = jdbcTemplate.query(sql, params, new RowMapper<String>() {
+            @Override
+            public String mapRow(ResultSet resultSet, int i) throws SQLException {
+                System.out.println(resultSet.getString(1)+" chathread");
+                return resultSet.getString(1);
+            }
+        });
+
+        return chatthreadlist.size();
+    }
+
+    /*
+        Get chat thread ids for specific project
+        @params: reponame and project
+        return List<String> == chatthreadids
+     */
+    public List<String> getChatThreads(String reponame, String project)
+    {
+        String sql = "select chat_thread_id from hooks_table where reponame=? AND project=?";
+        System.out.println(reponame+"  "+project)   ;
+        Object[] params={reponame,project};
+        List<String> chatthreadlist = jdbcTemplate.query(sql, params, new RowMapper<String>() {
+            @Override
+            public String mapRow(ResultSet resultSet, int i) throws SQLException {
+                System.out.println(resultSet.getString(1)+" chathread");
+                return resultSet.getString(1);
+            }
+        });
+        return chatthreadlist;
     }
 }

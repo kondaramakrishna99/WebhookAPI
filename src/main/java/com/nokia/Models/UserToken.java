@@ -10,6 +10,15 @@ public class UserToken {
     private String access_token;
     private String username;
     private String project;
+    private String scope;
+
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
 
     public String getUsername() {
         return username;
@@ -56,12 +65,11 @@ public class UserToken {
     @Override
     public String toString() {
         return "UserToken{" +
-                "user_id=" + user_id +
+                "user_id='" + user_id + '\'' +
                 ", access_token='" + access_token + '\'' +
                 ", username='" + username + '\'' +
                 ", project='" + project + '\'' +
+                ", scope='" + scope + '\'' +
                 '}';
     }
-
-
 }
