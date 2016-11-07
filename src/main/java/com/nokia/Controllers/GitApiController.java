@@ -34,7 +34,7 @@ public class GitApiController {
     Logger log= Logger.getLogger(GitViewController.class.getName());
 
     //where payload should be called from Git
-    String redirect_url = "https://71587faf.ngrok.io/payload";
+    String redirect_url = "https://4591e19f.ngrok.io/payload";
 
     @Autowired
     UserTokenDAO userTokenDAO;
@@ -206,6 +206,7 @@ public class GitApiController {
             if(response.getStatusLine().getStatusCode()==204)
             {
                 userHooksDAO.deleteAllHooksForRepo(hook);
+                log.info("hooks deleted "+id);
                 return new ResponseEntity<String>(id+"",HttpStatus.OK);
             }
 
@@ -214,7 +215,7 @@ public class GitApiController {
         {
             System.out.println(e);
         }
-        return new ResponseEntity<String>("id",HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<String>("bad request",HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value = "/deletehookforchat",method = RequestMethod.DELETE)
@@ -237,7 +238,7 @@ public class GitApiController {
                 return deleteHookForAll(hook);
             }
         }
-        return new ResponseEntity<String>("failed. Hook not present for this user",HttpStatus.NOT_FOUND);
+        return new ResponseEntity<String>("failed. Hook not present for this user in this chat thread",HttpStatus.NOT_FOUND);
     }
 
 

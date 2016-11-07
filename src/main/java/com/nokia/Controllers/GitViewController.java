@@ -13,6 +13,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,10 +34,34 @@ import java.util.logging.Logger;
 public class GitViewController {
 
     Logger log= Logger.getLogger(GitViewController.class.getName());
-    String redirect_url = "https://71587faf.ngrok.io/payload";
+    String redirect_url = "https://4591e19f.ngrok.io/payload";
 
     @Autowired
     UserTokenDAO userTokenDAO;
+
+    /*
+    Authorization url
+     */
+    @RequestMapping(value = "authorize",method = RequestMethod.GET)
+    public ModelAndView authorize(@RequestParam("user_id") String user_id)
+    {
+        log.info("------In authorize: ------"+user_id);
+        if(userTokenDAO.isUserPresent(user_id,"git"))
+        {
+            ModelAndView mav = new ModelAndView();
+            mav.setViewName("AlreadyRegistered");
+            return mav;
+        }
+        else
+        {
+            String url ="https://github.com/login/oauth/authorize?client_id=4f3cb4d16e55d1cd0f13&scope=admin:repo_hook&state=" + user_id;
+            log.info("git url: "+url);
+            ModelAndView mav = new ModelAndView();
+            mav.setViewName("redirect:"+url);
+            return mav;
+        }
+
+    }
 
     /*
         Postback url from git
