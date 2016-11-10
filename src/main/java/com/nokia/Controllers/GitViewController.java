@@ -2,6 +2,7 @@ package com.nokia.Controllers;
 
 import com.nokia.DAO.UserTokenDAO;
 import com.nokia.Models.UserToken;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,6 +37,9 @@ public class GitViewController {
 
     Logger log= Logger.getLogger(GitViewController.class.getName());
     String redirect_url = "https://4591e19f.ngrok.io/payload";
+    String client_id="4f3cb4d16e55d1cd0f13";
+    String client_secret="0354b3be9b792770fb1c9c4332d5ad7b1ed85277";
+
 
     @Autowired
     UserTokenDAO userTokenDAO;
@@ -42,10 +47,14 @@ public class GitViewController {
     /*
     Authorization url
      */
-    @RequestMapping(value = "authorize",method = RequestMethod.GET)
-    public ModelAndView authorize(@RequestParam("user_id") String user_id)
+    @RequestMapping(value = "/authorize/{user_id}",method = RequestMethod.GET)
+    public ModelAndView authorize(@PathVariable("user_id") String user_id)
     {
         log.info("------In authorize: ------"+user_id);
+
+        String token = userTokenDAO.getToken(user_id,"git");
+        log.info("token:"+token+" userid: "+user_id);
+        log.info("is token valid: "+isTokenValid(token)+"");
         if(userTokenDAO.isUserPresent(user_id,"git"))
         {
             ModelAndView mav = new ModelAndView();
@@ -54,7 +63,8 @@ public class GitViewController {
         }
         else
         {
-            String url ="https://github.com/login/oauth/authorize?client_id=4f3cb4d16e55d1cd0f13&scope=admin:repo_hook&state=" + user_id;
+//            String url ="https://github.com/login/oauth/authorize?client_id=4f3cb4d16e55d1cd0f13&scope=admin:repo_hook&state=" + user_id;
+            String url ="https://github.com/login/oauth/authorize?client_id="+client_id+"&scope=admin:repo_hook&state=" + user_id;
             log.info("git url: "+url);
             ModelAndView mav = new ModelAndView();
             mav.setViewName("redirect:"+url);
@@ -122,8 +132,8 @@ public class GitViewController {
         List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
 //        urlParameters.add(new BasicNameValuePair("client_id", "f641556acfa85098fd65"));
 //        urlParameters.add(new BasicNameValuePair("client_secret", "5fb5807200d471937abf249eb3f1f78bfb08b7e9"));
-        urlParameters.add(new BasicNameValuePair("client_id", "4f3cb4d16e55d1cd0f13"));
-        urlParameters.add(new BasicNameValuePair("client_secret", "0354b3be9b792770fb1c9c4332d5ad7b1ed85277"));
+        urlParameters.add(new BasicNameValuePair("client_id", client_id));
+        urlParameters.add(new BasicNameValuePair("client_secret", client_secret));
 
         urlParameters.add(new BasicNameValuePair("code", code));
         //System.out.println("url parameters:: "+urlParameters.toString());
@@ -186,5 +196,40 @@ public class GitViewController {
         return "No username";
     }
 
+    /*
+        Helper function to check the validity of token before using it.
+     */
+    public boolean isTokenValid(String token)
+    {
+        log.info("------is token valid------");
+        String url ="https://api.github.com/authorizations/"+client_id+"/tokens/"+token;
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet httpGet =new HttpGet(url);
+        httpGet.addHeader("Accept", "application/json");
+
+        String plainClientCredentials=client_id+":"+client_secret;
+        String base64ClientCredentials = new String(Base64.encodeBase64(plainClientCredentials.getBytes()));
+        httpGet.addHeader("Authorization", "Basic " + base64ClientCredentials);
+       // headers.add("Authorization", "Basic " + base64ClientCredentials);
+
+        try
+        {
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            log.info("Response Code : " +
+                    response.getStatusLine().getStatusCode());
+            String json = EntityUtils.toString(response.getEntity(), "UTF-8");
+            log.info("json: "+json);
+            if(response.getStatusLine().getStatusCode()==200)
+            {
+                return true;
+            }
+        }
+        catch(Exception e)
+        {
+            log.info(e.toString());
+        }
+
+        return false;
+    }
 
 }
