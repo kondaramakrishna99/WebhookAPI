@@ -202,7 +202,7 @@ public class GitViewController {
     public boolean isTokenValid(String token)
     {
         log.info("------is token valid------");
-        String url ="https://api.github.com/authorizations/"+client_id+"/tokens/"+token;
+        String url ="https://api.github.com/applications/"+client_id+"/tokens/"+token;
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet =new HttpGet(url);
         httpGet.addHeader("Accept", "application/json");
@@ -210,8 +210,7 @@ public class GitViewController {
         String plainClientCredentials=client_id+":"+client_secret;
         String base64ClientCredentials = new String(Base64.encodeBase64(plainClientCredentials.getBytes()));
         httpGet.addHeader("Authorization", "Basic " + base64ClientCredentials);
-       // headers.add("Authorization", "Basic " + base64ClientCredentials);
-
+        log.info("Request headers: "+httpGet.getLastHeader("Authorization"));
         try
         {
             CloseableHttpResponse response = httpClient.execute(httpGet);

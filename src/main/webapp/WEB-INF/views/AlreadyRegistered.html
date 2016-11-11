@@ -3,6 +3,20 @@
     <!--/*/ <th:block th:include="fragments/head :: head"/> /*/-->
 </head>
 <body>
-You are already registered
+<div>
+    <p>Welcome to Webhooks Buddy</p>
+    <h4>You are already registered</h4>
+    <h4>Useful commands</h4>
+    <ul>
+        <li>@webhook git authorize  #for authorizing the app to use your account</li>
+        <li>@webhook git getrepos  #to list your repositories </li>
+        <li>@webhook git createhook reponame   #create hook for specific repository</li>
+        <li>@webhook git deletehook reponame inthisthread  #delete hook for specific repository</li>
+        <li>@webhook git deletehook reponame allthreads  #delete hook for specific repository</li>
+        <li>@webhook git getallhooks forthischat  #get all hooks for this chat thread</li>
+        <li>@webhook git getallhooks mine  #get allhooks for a user</li>
+        <li>@webhook help  #to get above commands anytime.</li>
+    </ul>
+</div>
 </body>
 </html>

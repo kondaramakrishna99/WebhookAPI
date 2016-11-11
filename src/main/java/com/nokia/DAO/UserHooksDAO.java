@@ -46,7 +46,7 @@ public class UserHooksDAO {
         return hooksList;
     }
 
-    //List all hooks of specific user
+    //List all hooks of specific chat
     public List<UserHooks> getHooksForChat(String chat_thread_id)
     {
         String sql = "select * from hooks_table where chat_thread_id=?";

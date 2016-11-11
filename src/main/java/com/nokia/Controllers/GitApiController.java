@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 
@@ -242,7 +244,7 @@ public class GitApiController {
     }
 
 
-    //helper function
+    //helper function. This gets hooks from api
     public List<String> getHookList(String userid,String repo)
     {
         System.out.println("\n--------------get hooks--------------");
@@ -302,6 +304,51 @@ public class GitApiController {
         return new ResponseEntity<String>(scope,HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/getalluserhooks/{user_id}",method = RequestMethod.GET)
+    public ResponseEntity<String> getAllUserHooks(@PathVariable("user_id") String user_id)
+    {
+        List<UserHooks> hookList = userHooksDAO.getHooksForUser(user_id);
+        Set<String> hookListSet = new HashSet<String>();
+        if(hookList.size()!=0 && hookList!=null)
+        {
+            for(UserHooks hook:hookList)
+            {
+                hookListSet.add(hook.getReponame());
+            }
+            String result="";
+            for(String repo:hookListSet)
+            {
+                result=result+repo+" ";
+            }
+            log.info("get all user hooks: "+result);
+            return new ResponseEntity<String>(result,HttpStatus.OK);
+        }
+        else
+            return new ResponseEntity<String>("No hooks",HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/getallchathooks/{chat_thread_id}",method = RequestMethod.GET)
+    public ResponseEntity<String> getAllChatHooks(@PathVariable("chat_thread_id") String chat_thread_id)
+    {
+        List<UserHooks> hookList = userHooksDAO.getHooksForChat(chat_thread_id);
+        Set<String> hookListSet = new HashSet<String>();
+        if(hookList.size()!=0 && hookList!=null)
+        {
+            for(UserHooks hook:hookList)
+            {
+                hookListSet.add(hook.getReponame());
+            }
+            String result="";
+            for(String repo:hookListSet)
+            {
+                result=result+repo+" ";
+            }
+            log.info("get all chat hooks: "+result);
+            return new ResponseEntity<String>(result,HttpStatus.OK);
+        }
+        else
+            return new ResponseEntity<String>("No hooks",HttpStatus.NOT_FOUND);
+    }
 
 
 }
