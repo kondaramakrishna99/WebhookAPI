@@ -5,6 +5,7 @@ import com.nokia.DAO.UserTokenDAO;
 import com.nokia.Models.AjaxRequestHook;
 import com.nokia.Models.UserHooks;
 import com.nokia.Models.UserToken;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -37,6 +38,9 @@ public class GitApiController {
 
     //where payload should be called from Git
     String redirect_url = "https://4591e19f.ngrok.io/payload";
+    String client_id="4f3cb4d16e55d1cd0f13";
+    String client_secret="0354b3be9b792770fb1c9c4332d5ad7b1ed85277";
+
 
     @Autowired
     UserTokenDAO userTokenDAO;
@@ -107,6 +111,10 @@ public class GitApiController {
         String token = userTokenDAO.getToken(hook.getUser_id()+"","git");
         String repo = hook.getReponame();
 
+        if(!isTokenValid(token))
+        {
+            return "not valid token";
+        }
         if(userHooksDAO.isHookPresentForUserInChatThread(hook))
         {
             return "Repo/Hook already exist for this chat thread";
@@ -185,6 +193,12 @@ public class GitApiController {
         String token = userTokenDAO.getToken(hook.getUser_id()+"","git");
         String repo = hook.getReponame();
         String id=userHooksDAO.getHookId(hook);
+
+        if(!isTokenValid(token))
+        {
+            return new ResponseEntity<String>("not valid token",HttpStatus.FORBIDDEN);
+        }
+
         log.info("hook id: "+id);
         if(id.equals("No hook"))
         {
@@ -350,5 +364,39 @@ public class GitApiController {
             return new ResponseEntity<String>("No hooks",HttpStatus.NOT_FOUND);
     }
 
+    /*
+        Helper function to check the validity of token before using it.
+     */
+    public boolean isTokenValid(String token)
+    {
+        log.info("------is token valid------");
+        String url ="https://api.github.com/applications/"+client_id+"/tokens/"+token;
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet httpGet =new HttpGet(url);
+        httpGet.addHeader("Accept", "application/json");
+
+        String plainClientCredentials=client_id+":"+client_secret;
+        String base64ClientCredentials = new String(Base64.encodeBase64(plainClientCredentials.getBytes()));
+        httpGet.addHeader("Authorization", "Basic " + base64ClientCredentials);
+        log.info("Request headers: "+httpGet.getLastHeader("Authorization"));
+        try
+        {
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            log.info("Response Code : " +
+                    response.getStatusLine().getStatusCode());
+            String json = EntityUtils.toString(response.getEntity(), "UTF-8");
+            log.info("json: "+json);
+            if(response.getStatusLine().getStatusCode()==200)
+            {
+                return true;
+            }
+        }
+        catch(Exception e)
+        {
+            log.info(e.toString());
+        }
+
+        return false;
+    }
 
 }

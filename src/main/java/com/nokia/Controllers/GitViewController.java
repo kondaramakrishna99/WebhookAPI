@@ -55,7 +55,7 @@ public class GitViewController {
         String token = userTokenDAO.getToken(user_id,"git");
         log.info("token:"+token+" userid: "+user_id);
         log.info("is token valid: "+isTokenValid(token)+"");
-        if(userTokenDAO.isUserPresent(user_id,"git"))
+        if(userTokenDAO.isUserPresent(user_id,"git") && isTokenValid(token))
         {
             ModelAndView mav = new ModelAndView();
             mav.setViewName("AlreadyRegistered");
