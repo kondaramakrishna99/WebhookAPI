@@ -1,7 +1,7 @@
 package com.nokia.Controllers;
 
 import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.sun.deploy.net.HttpResponse;
+
 import jdk.nashorn.internal.parser.JSONParser;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -35,7 +35,7 @@ import org.apache.http.message.BasicNameValuePair;
 @Controller
 public class ViewsController {
 
-    String redirect_url = "https://4591e19f.ngrok.io/payload";
+    String redirect_url = "http://dea48a9c.ngrok.io/payload";
 
 
     @RequestMapping(value = "/welcome", method = RequestMethod.GET)

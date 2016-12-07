@@ -37,7 +37,9 @@ public class GitApiController {
     Logger log= Logger.getLogger(GitViewController.class.getName());
 
     //where payload should be called from Git
-    String redirect_url = "https://4591e19f.ngrok.io/payload";
+//    String redirect_url = "http://ec2-54-226-255-146.compute-1.amazonaws.com:8080/payload";
+    String redirect_url = "http://dea48a9c.ngrok.io/payload";
+
     String client_id="4f3cb4d16e55d1cd0f13";
     String client_secret="0354b3be9b792770fb1c9c4332d5ad7b1ed85277";
 

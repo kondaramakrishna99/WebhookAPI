@@ -36,7 +36,9 @@ import java.util.logging.Logger;
 public class GitViewController {
 
     Logger log= Logger.getLogger(GitViewController.class.getName());
-    String redirect_url = "https://4591e19f.ngrok.io/payload";
+//    String redirect_url = "http://ec2-54-226-255-146.compute-1.amazonaws.com:8080/payload/payload";
+    String redirect_url = "http://dea48a9c.ngrok.io/payload";
+
     String client_id="4f3cb4d16e55d1cd0f13";
     String client_secret="0354b3be9b792770fb1c9c4332d5ad7b1ed85277";
 
@@ -55,9 +57,11 @@ public class GitViewController {
         String token = userTokenDAO.getToken(user_id,"git");
         log.info("token:"+token+" userid: "+user_id);
         log.info("is token valid: "+isTokenValid(token)+"");
+       // System.out.println("authorize::::");
         if(userTokenDAO.isUserPresent(user_id,"git") && isTokenValid(token))
         {
             ModelAndView mav = new ModelAndView();
+            //mav.setViewName("AlreadyRegistered");
             mav.setViewName("AlreadyRegistered");
             return mav;
         }
